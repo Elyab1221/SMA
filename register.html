@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{%block title %} create an account {%endblock%}
+{% block content %}
+   <h1>create an account</h1>
+    <form method="POST">
+        <input type="hidden" name="csrf" value="{{csrf}}">
+        <label>name<input name="name" type="text" required></label>
+        <label>email<input name="email" type="email" required></label>
+        <label>password<input type="password" id="password" name="password" required>
+        </label>
+        <!-- <label>confirm password<input type="password" id="confirm_password" name="confirm_password" required>
+        </label> -->
+        <label> I am
+        <select name="role" required>
+            <option value="student">club member</option>
+            <option value="admin">admin(needs leader approval)</option>
+            <!-- <option value="leader">leader</option> -->
+        </select>
+    </label>
+        <button type="submit">create account</button>
+    </form>
+    <p>already have an account? <a href="{{url_for('auth.login')}}">login</a></p>
+{% endblock %}
