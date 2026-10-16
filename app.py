@@ -1,7 +1,6 @@
 import secrets 
-from flask import Flask, sessions, request,abort
+from flask import Flask, session, request, abort
 import config
-import db
 
 app=Flask(__name__)
 app.config.update(
@@ -11,17 +10,17 @@ app.config.update(
 )
 @app.before_request
 def csrf_check():
-    if "csrf" not in sessions:
-        sessions["csrf"] = secrets.token_hex(16)
+    if "csrf" not in session:
+        session["csrf"] = secrets.token_hex(16)
     if request.method == "POST":
         sent=request.form.get("csrf") or request.headers.get("X-CSRF")
-    if sent!=sessions["csrf"]:
-        abort(400)
+        if sent!=session["csrf"]:
+            abort(400)
 
 @app.context_processor
 def inject():
-    return {"csrf":sessions.get("csrf",""), "role":sessions.get("role","")}
+    return {"csrf":session.get("csrf",""), "role":session.get("role","")}
 
 if __name__=="__main__":
-    app.init_db()
     app.run(debug=True)
+
