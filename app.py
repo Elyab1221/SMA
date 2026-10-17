@@ -1,13 +1,24 @@
 import secrets 
 from flask import Flask, session, request, abort
 import config
+import db 
+from auth import auth 
+from student import student
+from admin import admin 
+from leader import leader 
 
 app=Flask(__name__)
 app.config.update(
     SECRET_KEY=config.SECRET_KEY,
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
+    SESSION_COOKIE_SECURE= config.HTTPS,
+    PERMANENT_SESSION_LIFETIME = config.SESSION.LIFETIME,
 )
+
+for bp in (auth,student,admin,leader):
+    app.register_blueprint(bp)
+
 @app.before_request
 def csrf_check():
     if "csrf" not in session:
@@ -17,10 +28,18 @@ def csrf_check():
         if sent!=session["csrf"]:
             abort(400)
 
+@app.after_request
+def security_headers(resp):
+    resp.headers["Context-Security-Policy"]="default-src 'self' "
+    resp.headers["X-Content-Type-Options"]="nonsniff"
+    resp.headers["X-Frame-Options"]="DENY"
+    resp.headers["Referrer-Policy"]="same-origin"
+
 @app.context_processor
 def inject():
     return {"csrf":session.get("csrf",""), "role":session.get("role","")}
 
 if __name__=="__main__":
-    app.run(debug=True)
+    db.init.db()
+    app.run(debug==config.DEBUG)
 
