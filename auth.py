@@ -1,9 +1,9 @@
 import re
 import secrets
-import sqllite3
+import sqlite3
 import time 
 import config
-from flask import Blueprint, lueprint,render_template, request, redirect, url_for, session,flash
+from flask import Blueprint, Blueprint,render_template, request, redirect, url_for, session,flash
 from werkzeug.security import check_password_hash, generate_password_hash,check_password_hash
 from db import get_db
 
@@ -35,7 +35,7 @@ def register():
         elif not name or len(name)>60 or not EMAIL_RE.match(email) or not 8<=len(password)<=128:
             flash("enter your name , a valid email and a passwrd with 8-128 characters")
         else:
-            status="active" if role=="student" else "peending"\
+            status="active" if role=="student" else "peending"
             try:
                 with get_db() as conn:
                     conn.execute("INSER INTO users(name,email,password_hash,role,status) VALUES(?,?,?,?,?)",

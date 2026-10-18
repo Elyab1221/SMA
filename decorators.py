@@ -18,8 +18,8 @@ def role_acquired(*roles):
                 abort(403)
             # if session.get("role") not in roles:
             #     abort(403)
-                return f(*args, **kwargs)
-            return decorated_function
-        return decorator
+            return f(*args, **kwargs)
+        return decorated_function
+    return decorator
     #     return wrapper
     # return deco

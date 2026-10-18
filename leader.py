@@ -16,7 +16,7 @@ def pending_admins():
     return render_template("pending.html",admins=admins, students=students)
 STATUS_ACTIONS={"approve":"active","activate":"active","reject":"rejected","suspend":"suspended"}
 
-@leader.route("/leader/<int:user_id/<action>", methods=["POST"])
+@leader.route("/leader/<int:user_id>/<action>", methods=["POST"])
 @role_acquired("leader")
 def decide(user_id,action):
     with get_db as conn:

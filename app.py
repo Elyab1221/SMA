@@ -13,7 +13,7 @@ app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE='Lax',
     SESSION_COOKIE_SECURE= config.HTTPS,
-    PERMANENT_SESSION_LIFETIME = config.SESSION.LIFETIME,
+    PERMANENT_SESSION_LIFETIME = config.SESSION_LIFETIME,
 )
 
 for bp in (auth,student,admin,leader):
@@ -40,6 +40,6 @@ def inject():
     return {"csrf":session.get("csrf",""), "role":session.get("role","")}
 
 if __name__=="__main__":
-    db.init.db()
-    app.run(debug==config.DEBUG)
+    db.init_db()
+    app.run(debug=config.DEBUG)
 

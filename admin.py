@@ -10,14 +10,14 @@ def inbox():
     return render_template("inbox.html", msgs=msgs)
 
 @admin.route("/inbox/<int:msg_id>/read", methods=["POST"])
-@role_required("admin","leader")
+@role_acquired("admin","leader")
 def mark_read(msg_id):
     with get_db() as conn:
         conn.execute("UPDATE messages SET is_read=1 WHERE id=?", (msg_id,))
     return redirect(url_for("admin.inbox"))
 
 @admin.route("/inbox/<int:msg_id>/delete", methods=["POST"])
-@role_required("admin","leader")
+@role_acquired("admin","leader")
 def delete(msg_id):
     with get_db() as conn:
         conn.execute("DELETE FROM messages WHERE id=?", (msg_id,))
