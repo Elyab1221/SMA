@@ -1,4 +1,5 @@
 import os
+import sys
 import sqlite3
 import secrets
 import string
@@ -11,7 +12,11 @@ def generate_code():
 def get_db():
     db_path = config.DATABASE
     if not os.path.isabs(db_path):
-        db_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), db_path)
+        if getattr(sys, "frozen", False):
+            base_dir = os.path.dirname(sys.executable)
+        else:
+            base_dir = os.path.dirname(os.path.abspath(__file__))
+        db_path = os.path.join(base_dir, db_path)
     
     conn = sqlite3.connect(db_path)
     conn.row_factory = sqlite3.Row
@@ -19,7 +24,10 @@ def get_db():
     return conn
 
 def init_db():
-    schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
+    if getattr(sys, "frozen", False):
+        schema_path = os.path.join(getattr(sys, "_MEIPASS", os.path.dirname(sys.executable)), "schema.sql")
+    else:
+        schema_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "schema.sql")
     with get_db() as conn:
         # Pre-migration for existing legacy databases before index creation
         tables = [r["name"] for r in conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()]

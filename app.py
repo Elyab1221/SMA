@@ -7,7 +7,19 @@ from student import student
 from admin import admin
 from leader import leader
 
-app = Flask(__name__)
+import os
+import sys
+
+# Support PyInstaller frozen bundles
+if getattr(sys, "frozen", False):
+    bundle_dir = getattr(sys, "_MEIPASS", os.path.dirname(sys.executable))
+    app = Flask(
+        __name__,
+        template_folder=os.path.join(bundle_dir, "templates"),
+        static_folder=os.path.join(bundle_dir, "static")
+    )
+else:
+    app = Flask(__name__)
 app.config.update(
     SECRET_KEY=config.SECRET_KEY,
     SESSION_COOKIE_HTTPONLY=True,
