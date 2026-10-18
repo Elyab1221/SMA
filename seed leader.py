@@ -1,7 +1,7 @@
 # run once to create the leader acoount
 from getpass import getpass
 from werkzeug.security import generate_password_hash
-import dbm
+import db
 
 db.init_db()
 name=input("leader name: ").strip()

@@ -1,4 +1,4 @@
-from flask import blueprint, render_template,redirect, url_for
+from flask import Blueprint, render_template,redirect, url_for
 from db import get_db
 from decorators import role_acquired
 
@@ -6,7 +6,7 @@ admin=Blueprint("admin", __name__)
 @admin.route("/inbox")
 @role_acquired("admin","leader")
 def inbox():
-    msgs=get_db().execute("SELECT * FROM messages Order BY id DESC").fetchall()
+    msgs=get_db().execute("SELECT * FROM messages ORDER BY id DESC").fetchall()
     return render_template("inbox.html", msgs=msgs)
 
 @admin.route("/inbox/<int:msg_id>/read", methods=["POST"])

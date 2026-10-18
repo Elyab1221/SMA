@@ -18,18 +18,14 @@ def send_message():
     if not text or len(text)>1000:
         return jsonify(error="write between 1-1000 characters"), 400
     today=date.today().isoformat()
+    uid=session["user_id"]
     with get_db() as conn:
-        row=conn.execute("SELECT * FROM send_limits WHERE sender=? AND date=?",
-                          (session["user_id"], today)).fetchone()
-        if not row:
-            conn.execute("INSERT INTO send_limits VALUES(?,0,?)",
-                          (session["user_id"], today, 1))
-            sent=0
-        else: 
-            sent=row["sent_today"] if row["last_Reset"]==today else 0
-        if sent>=config.Daily_LIMIT:
-            return jsonify(error="Daily limit reached try again tommorow"), 429
-        conn.execute("UPDATE send_limits SET sent_today=? ,last_reset=? WHERE user_id=?", 
-                     (sent+1, today, session["user_id"]))
-        conn.execute("INSERT INTO messages(text) VALUES(?)", (text,)) #no user id stored for simplicity
-    return jsonify(ok=True),201
+        conn.execute("INSERT OR IGNORE INTO send_limits VALUES(?,0,?)",(uid,today))
+        conn.execute("UPDATE send_limits SET sent_today=0, last_reseet=? where user id=? AND last_reset!=?",
+                     (today,uid,today))
+        used=conn.execute("UPDATE send_limits SET sent_today= sent_today+1 WHERE user_id=? AND sent_today<?",
+                          (uid,config.DAILY_LIMIT)).rowcount
+        if not used:
+            return jsonify(error="Daily limit reached try again tommorow"),429
+        conn.execute("INSERT INTO messages(text) VALUES(?)",(text,)) # no user id stored that is hwat makes it anonymous
+        return jsonify(ok=True),201
