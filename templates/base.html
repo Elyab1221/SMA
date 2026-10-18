@@ -20,7 +20,7 @@
          </nav>
     </header>
     <main>
-        {% for m in get flashed_messages() %}<p class="flash">{{ m }}</p>{% endfor %}
+        {% for m in get_flashed_messages() %}<p class="flash">{{ m }}</p>{% endfor %}
         {% block content %}{% endblock %}
         </main>
 </body>

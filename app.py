@@ -30,10 +30,11 @@ def csrf_check():
 
 @app.after_request
 def security_headers(resp):
-    resp.headers["Context-Security-Policy"]="default-src 'self' "
-    resp.headers["X-Content-Type-Options"]="nonsniff"
+    resp.headers["Content-Security-Policy"]="default-src 'self' "
+    resp.headers["X-Content-Type-Options"]="nosniff"
     resp.headers["X-Frame-Options"]="DENY"
     resp.headers["Referrer-Policy"]="same-origin"
+    return resp
 
 @app.context_processor
 def inject():
