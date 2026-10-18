@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS messages(
 CREATE TABLE IF NOT EXISTS send_limits(
     user_id INTEGER PRIMARY KEY,
     sent_today INTEGER NOT NULL DEFAULT 0,
-    last_sent TEXT NOT NULL
+    last_reset TEXT NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS login_attempts(

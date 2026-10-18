@@ -38,14 +38,14 @@ def register():
             status="active" if role=="student" else "pending"
             try:
                 with get_db() as conn:
-                    conn.execute("INSER INTO users(name,email,password_hash,role,status) VALUES(?,?,?,?,?)",
+                    conn.execute("INSERT INTO users(name,email,password_hash,role,status) VALUES(?,?,?,?,?)",
                                  (name,email,generate_password_hash(password),role,satus))
-            except sqlite3.IntegrityerrorError:
+            except sqlite3.IntegrityError:
                 flash("email already registered")
                 return render_template("register.html")
             flash("registration succesful,please login(admins must wait for the leader's approval)")
-            return redirect(url_for(auth.login))
-        return render_template("register.html") 
+            return redirect(url_for("auth.login"))
+    return render_template("register.html") 
         
 @auth.route("/login", methods=["GET","POST"])
 def login():
@@ -53,17 +53,17 @@ def login():
         email=request.form.get("email","").strip().lower()
         password=request.form.get("password","")
         now=time.time()
-        with get_db as conn:
-            att=conn.execute("SELECT * FROM login _attempts WHERE email=?", (email)).fetchone()
+        with get_db() as conn:
+            att=conn.execute("SELECT * FROM login_attempts WHERE email=?", (email,)).fetchone()
             if att and att["locked_until"]>now:
                 flash("too many wrong attempts. try again in a few minutes")
                 return render_template("login.html")
             user=conn.execute("SELECT * FROM users where email=?",(email,)).fetchone()
             if not user or not check_password_hash(user["password_hash"],password):
                 fails=(att["fails"] if att else 0)+1
-                lock=now+config.LOCK_SECOND if fails>=config.MAX_FAILS else 0
-                conn.execute("SELECT OR REPLACE INTO login_attempts VALUES(?,?,?)",
-                             (email, o if lock else fails,lock))
+                lock=now+config.LOCK_SECONDS if fails>=config.MAX_FAILS else 0
+                conn.execute("INSERT OR REPLACE INTO login_attempts VALUES(?,?,?)",
+                             (email, 0 if lock else fails,lock))
                 flash("invalid email or password")
             elif user["status"]!="active":
                 flash({"pending":"your account is not currently active yet."

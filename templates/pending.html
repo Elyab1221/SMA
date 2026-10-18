@@ -1,5 +1,5 @@
-{%e xtends "base.html"%}
-{%b lock title %} Admins{%endblock%}
+{%e extends "base.html" %}
+{%b block title %} Admins{% endblock %}
  {% macro person(u) %}
     <!-- <h1>admin requests</h1>
     {% for a in admins %} -->
@@ -20,7 +20,7 @@
         {% endfor %}
     </div>
     </article>
-{% endmacro% }
+{% endmacro %}
 {% block content %}
 <h1>admin request</h1>
 {% for a in admins %} {{ person(a) }}
@@ -31,5 +31,5 @@
 {% for s in students%}{{person(s) }}
 {% else %}
 <p>no members yet.</p>
-{% end for %}
+{% endfor %}
 {% endblock %}

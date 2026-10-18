@@ -3,14 +3,14 @@
 {% block content %}
     <h1>Inbox</h1>
     {% for m in msgs%}
-    <article class="msg{{''if m.is_read else'unread' ''}}"">
+    <article class="msg {{ '' if m.is_read else 'unread' }}">
         <p>{{ m.text }}</p>
         <small>{{ m.created_at }}</small>
         <div class="actions">
             {% if not m.is_read %}
             <form method="POST" action="{{ url_for('admin.mark_read', msg_id=m.id) }}">
                 <input type="hidden" name="csrf" value="{{ csrf }}">
-                <button type="submit"></button>Mark as Read</button>
+                <button type="submit" class="danger">Mark as Read</button>
             </form>
             {% endif %}
             <form method="POST" action="{{ url_for('admin.delete', msg_id=m.id) }}">

@@ -21,7 +21,7 @@ STATUS_ACTIONS={"approve":"active","activate":"active","reject":"rejected","susp
 def decide(user_id,action):
     with get_db() as conn:
         target=conn.execute("SELECT * FROM users WHERE id=? AND role !='leader' ", (user_id,)).fetchone()
-        if not targetsss:
+        if not target:
             abort(404)
         if action in STATUS_ACTIONS:
             conn.execute ("UPDATE users SET status=? WHERE id=?",(STATUS_ACTIONS[action],user_id,))
@@ -34,4 +34,4 @@ def decide(user_id,action):
             conn.execute("DELETE FROM send_limits WHERE user_id=?",(user_id,))
         else:
             abort(404)
-    return redirect(url_for("leader.pending adins"))
+    return redirect(url_for("leader.pending admins"))

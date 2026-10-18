@@ -21,7 +21,7 @@ def send_message():
     uid=session["user_id"]
     with get_db() as conn:
         conn.execute("INSERT OR IGNORE INTO send_limits VALUES(?,0,?)",(uid,today))
-        conn.execute("UPDATE send_limits SET sent_today=0, et=? WHERE user_id=? AND last_reset!=?",
+        conn.execute("UPDATE send_limits SET sent_today=0, last_reset=? WHERE user_id=? AND last_reset!=?",
                      (today,uid,today))
         used=conn.execute("UPDATE send_limits SET sent_today= sent_today+1 WHERE user_id=? AND sent_today<?",
                           (uid,config.DAILY_LIMIT)).rowcount
