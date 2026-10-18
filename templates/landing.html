@@ -1,0 +1,105 @@
+{% extends "base.html" %}
+
+{% block title %}Cyber Talent Club SMA - Anonymous Club Communication{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="hero-content">
+        <div class="hero-tag">
+            <span class="pulse-indicator"></span> Secure &bull; Anonymous &bull; Empowering
+        </div>
+        <h1 class="hero-title">
+            Speak Freely.<br>
+            <span class="gradient-text">Zero Fear. 100% Anonymous.</span>
+        </h1>
+        <p class="hero-subtitle">
+            Cyber Talent Club SMA bridges the gap between students and club leadership. 
+            Share your honest thoughts, questions, and boldest ideas with verified admins without revealing your identity.
+        </p>
+
+        <div class="hero-actions">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">
+                Join Your Club
+            </a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-outline btn-lg">
+                Member Sign In
+            </a>
+            <a href="{{ url_for('auth.register') }}?role=leader" class="btn btn-ghost btn-lg">
+                Create Club as Leader &rarr;
+            </a>
+        </div>
+    </div>
+</section>
+
+<section id="features" class="section">
+    <div class="section-header">
+        <span class="section-tag">Key Principles</span>
+        <h2>Why We Built SMA</h2>
+        <p>A club thrives when ideas flow without hesitation or fear of judgment.</p>
+    </div>
+
+    <div class="features-grid">
+        <div class="feature-card">
+            <div class="feature-icon">🛡️</div>
+            <h3>True Anonymity</h3>
+            <p>When you send a message, your student ID and email are never recorded in the message database. Admins only see the thought, never the sender.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">👑</div>
+            <h3>Leader & Admin Hierarchy</h3>
+            <p>Club leaders create their hub, generate unique club join codes, and approve verified staff before admins can access incoming messages.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">⚡</div>
+            <h3>Spam & Abuse Protection</h3>
+            <p>Smart daily quotas and rate limits ensure constructive dialogue, preventing spam while guaranteeing every student gets their daily voice.</p>
+        </div>
+
+        <div class="feature-card">
+            <div class="feature-icon">🔒</div>
+            <h3>User Privacy & Security</h3>
+            <p>Complete self-service password management for every student, automated brute-force protection, and strict CSRF defensive shielding.</p>
+        </div>
+    </div>
+</section>
+
+<section id="how-it-works" class="section section-dark">
+    <div class="section-header">
+        <span class="section-tag">Workflow</span>
+        <h2>How Club SMA Operates</h2>
+        <p>Three straightforward steps to transparent club communication.</p>
+    </div>
+
+    <div class="steps-grid">
+        <div class="step-card">
+            <div class="step-number">01</div>
+            <h3>Leader Creates Club</h3>
+            <p>The club leader registers and receives an exclusive Club Code (e.g. <code>SMA-7X9P2K</code>) to distribute to their team and student body.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">02</div>
+            <h3>Admins Sign Up & Get Approved</h3>
+            <p>Club staff sign up under the leader's code. For maximum security, admins remain pending until explicitly approved by the leader.</p>
+        </div>
+
+        <div class="step-card">
+            <div class="step-number">03</div>
+            <h3>Students Speak Up Freely</h3>
+            <p>Club members join using the code, compose feedback or questions, and submit directly to the inbox with total anonymity guaranteed.</p>
+        </div>
+    </div>
+</section>
+
+<section class="cta-banner">
+    <div class="cta-inner">
+        <h2>Ready to make your club voice heard?</h2>
+        <p>Sign up now using your club leader's code or create a new club space.</p>
+        <div class="hero-actions" style="justify-content: center; margin-top: 1.5rem;">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started Now</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,15 +1,78 @@
 {% extends "base.html" %}
-{% block title %} Send a Message {% endblock %}
+
+{% block title %}Send Anonymous Message - Cyber Talent SMA{% endblock %}
+
 {% block content %}
-    <h1>Send Message without your name</h1>
-    <p>send a message to admins without showing your face.</p>
-    <!-- <form method="POST"> -->
-        <!-- <form id="form" data-csfr="{{csrf}}" method="POST" action="{{url_for('send.send_message')}}"> -->
-            <form id="form" data-csrf="{{ csrf }}"><!--</form>-->
-        <!-- <input type="hidden" name="csrf" value="{{csrf}}"> -->
-        <label>your message<textarea name="text" rows="6" maxlength="1000" required></textarea></label>
-        <button type="submit">Send</button>
-        <p id="status" role="status"></p>
-    </form>
-    <script src="{{url_for('static', filename='send.js')}}"></script>
+<div class="composer-container">
+    <div class="composer-header">
+        <h1>Send Anonymous Feedback</h1>
+        <p class="composer-subtitle">
+            Voice your ideas, feedback, or concerns directly to club administrators without revealing your identity.
+        </p>
+    </div>
+
+    <div class="anonymity-banner">
+        <div class="banner-icon">🛡️</div>
+        <div class="banner-body">
+            <strong>True Anonymity Guaranteed</strong>
+            <p>Your name, email, and user ID are strictly decoupled and never stored with this message. Staff only see the message content and timestamp.</p>
+        </div>
+    </div>
+
+    <div class="composer-card">
+        <div class="quota-bar">
+            <span class="quota-label">Daily Message Allowance:</span>
+            <span class="quota-badge" id="quotaBadge">
+                <span id="remainingCount">{{ remaining }}</span> of {{ daily_limit }} remaining today
+            </span>
+        </div>
+
+        <form id="form" data-csrf="{{ csrf }}" class="composer-form">
+            <div class="form-group">
+                <label for="text">Your Message</label>
+                <textarea 
+                    name="text" 
+                    id="text" 
+                    rows="8" 
+                    maxlength="1000" 
+                    placeholder="Type your suggestion, question, or feedback here... Speak freely!" 
+                    required 
+                    class="form-control composer-textarea"
+                ></textarea>
+                <div class="textarea-footer">
+                    <span class="char-counter"><span id="charCount">0</span> / 1000 characters</span>
+                </div>
+            </div>
+
+            <div class="composer-actions">
+                <button type="submit" id="submitBtn" class="btn btn-primary btn-lg" {% if remaining <= 0 %}disabled{% endif %}>
+                    Send Anonymously
+                </button>
+            </div>
+
+            <div id="status" class="status-box" role="status" style="display: none;"></div>
+        </form>
+    </div>
+
+    <div class="info-callout" style="margin-bottom: 2rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <strong>👑 Want to lead your own club?</strong>
+            <p style="margin: 0; color: var(--text-secondary); font-size: 0.88rem;">Found a new club, generate your own Club Code, and invite members to send anonymous feedback to you.</p>
+        </div>
+        <a href="{{ url_for('student.create_club') }}" class="btn btn-sm btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 700;">
+            Found a Club &rarr;
+        </a>
+    </div>
+
+    <div class="feedback-guidelines">
+        <h3>💡 Tips for Helpful Feedback</h3>
+        <ul>
+            <li><strong>Be specific:</strong> Concrete examples help admins take action faster.</li>
+            <li><strong>Be constructive:</strong> Suggest solutions or new club activities you'd like to see.</li>
+            <li><strong>Be respectful:</strong> Honest criticism is welcome; harassment or abuse is not tolerated.</li>
+        </ul>
+    </div>
+</div>
+
+<script src="{{ url_for('static', filename='send.js') }}"></script>
 {% endblock %}

@@ -1,24 +1,144 @@
 {% extends "base.html" %}
-{%block title %} create an account {%endblock%}
+
+{% block title %}Create Account - Cyber Talent SMA{% endblock %}
+
 {% block content %}
-   <h1>create an account</h1>
-    <form method="POST">
-        <input type="hidden" name="csrf" value="{{csrf}}">
-        <label>name<input class="req" name="name" type="text" required></label>
-        <label>email<input class="req" name="email" type="email" required></label>
-        <label>password<input class="req" type="password" id="password" name="password" required>
-        </label>
-        <label class="req"> club code: <input name="code" type="text" autocomplete="off" required></label>
-        <!-- <label>confirm password<input type="password" id="confirm_password" name="confirm_password" required>
-        </label> -->
-        <label class="req"> I am
-        <select name="role" required>
-            <option value="student">club member</option>
-            <option value="admin">admin(needs leader approval)</option>
-            <!-- <option value="leader">leader</option> -->
-        </select>
-    </label>
-        <button type="submit">create account</button>
-    </form>
-    <p>already have an account? <a href="{{url_for('auth.login')}}">login</a></p>
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <div class="auth-header">
+            <span class="auth-icon">✨</span>
+            <h2>Create an Account</h2>
+            <p>Join Cyber Talent SMA and connect with your club</p>
+        </div>
+
+        <form method="POST" class="auth-form" id="registerForm">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+
+            <div class="form-group">
+                <label for="role">I am joining as</label>
+                <select name="role" id="role" class="form-control" required>
+                    <option value="student" {% if request.args.get('role') != 'leader' and request.args.get('role') != 'admin' %}selected{% endif %}>
+                        Club Member (Student)
+                    </option>
+                    <option value="admin" {% if request.args.get('role') == 'admin' %}selected{% endif %}>
+                        Club Admin (Requires Leader Approval)
+                    </option>
+                    <option value="leader" {% if request.args.get('role') == 'leader' %}selected{% endif %}>
+                        Club Leader (Create New Club & Get Code)
+                    </option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="name">Full Name</label>
+                <input 
+                    type="text" 
+                    id="name" 
+                    name="name" 
+                    placeholder="e.g. Jane Doe" 
+                    required 
+                    autocomplete="name"
+                    class="form-control"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="student@example.com" 
+                    required 
+                    autocomplete="email"
+                    class="form-control"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password (min 8 characters)</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    name="password" 
+                    placeholder="Choose a strong password" 
+                    required 
+                    minlength="8"
+                    autocomplete="new-password"
+                    class="form-control"
+                >
+            </div>
+
+            <div class="form-group" id="codeGroup">
+                <label for="code">
+                    Club / Leader Code 
+                    <span class="required-star">*</span>
+                </label>
+                <input 
+                    type="text" 
+                    id="code" 
+                    name="code" 
+                    placeholder="e.g. SMA-7X9P2K" 
+                    autocomplete="off"
+                    class="form-control code-input"
+                >
+                <small class="form-hint" id="codeHint">
+                    Enter the unique Club Code provided by your Club Leader.
+                </small>
+            </div>
+
+            <div class="form-group" id="clubNameGroup" style="display: none;">
+                <label for="club_name">Club Name</label>
+                <input 
+                    type="text" 
+                    id="club_name" 
+                    name="club_name" 
+                    placeholder="e.g. Cyber Talent SMA, Robotics Club" 
+                    maxlength="80"
+                    class="form-control"
+                >
+                <small class="form-hint">Choose a recognizable name for your club.</small>
+            </div>
+
+            <div id="leaderNote" class="info-callout" style="display: none;">
+                💡 <strong>Leader Notice:</strong> A unique Club Code will be generated for you immediately upon registration. You will share that code with your admins and members.
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block">
+                Create Account
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="{{ url_for('auth.login') }}">Sign In</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    (function() {
+        const roleSelect = document.getElementById("role");
+        const codeGroup = document.getElementById("codeGroup");
+        const codeInput = document.getElementById("code");
+        const clubNameGroup = document.getElementById("clubNameGroup");
+        const leaderNote = document.getElementById("leaderNote");
+
+        function updateFields() {
+            if (roleSelect.value === "leader") {
+                codeGroup.style.display = "none";
+                codeInput.removeAttribute("required");
+                clubNameGroup.style.display = "block";
+                leaderNote.style.display = "block";
+            } else {
+                codeGroup.style.display = "block";
+                codeInput.setAttribute("required", "required");
+                clubNameGroup.style.display = "none";
+                leaderNote.style.display = "none";
+            }
+        }
+
+        roleSelect.addEventListener("change", updateFields);
+        updateFields();
+    })();
+</script>
 {% endblock %}

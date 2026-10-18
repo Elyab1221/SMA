@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block title %}Start Your Own Club - Cyber Talent SMA{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card" style="max-width: 540px;">
+        <div class="auth-header">
+            <span class="auth-icon">👑</span>
+            <h2>Found Your Own Club</h2>
+            <p>Step up as a Club Leader and build your community on SMA</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            <input type="hidden" name="csrf" value="{{ csrf }}">
+
+            <div class="form-group">
+                <label for="club_name">Club Name</label>
+                <input 
+                    type="text" 
+                    id="club_name" 
+                    name="club_name" 
+                    placeholder="e.g. Robotics Club, Cyber Talent Chapter 2, Chess Club" 
+                    required 
+                    maxlength="80"
+                    class="form-control"
+                    autofocus
+                >
+                <small class="form-hint">Give your club a clear, recognizable name for your members.</small>
+            </div>
+
+            <div class="info-callout" style="margin: 0.5rem 0 1rem;">
+                <strong>What happens when you create a club:</strong>
+                <ul style="margin: 0.5rem 0 0 1.25rem; font-size: 0.88rem; line-height: 1.5;">
+                    <li>Your account is promoted to <strong>Club Leader</strong>.</li>
+                    <li>You will receive an exclusive <strong>Club Code</strong> (e.g. <code>SMA-XXXXXX</code>) to invite members.</li>
+                    <li>You will have full control to approve or decline admin requests.</li>
+                    <li>You will receive all anonymous feedback submitted to your club.</li>
+                </ul>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                🚀 Launch My Club
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p><a href="{{ url_for('student.send_page') }}">&larr; Back to Member Dashboard</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

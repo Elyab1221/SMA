@@ -1,38 +1,94 @@
-import secrets
-from flask import Blueprint, render_template, redirect, url_for, flash, abort
-from werkzeug.security import generate_password_hash
+from flask import Blueprint, render_template, redirect, url_for, flash, abort, session
 from db import get_db
 from decorators import role_acquired
 
-leader=Blueprint("leader", __name__)
+leader = Blueprint("leader", __name__)
 
 @leader.route("/leader")
 @role_acquired("leader")
-def pending_admins():
-    q="SELECT id,name,email,status FROM users WHERE role=? ORDER BY status,name"
-    conn=get_db()
-    admins=conn.execute(q, ("admin",)).fetchall()
-    students=conn.execute(q, ("student",)).fetchall()
-    return render_template("pending.html", admins=admins, students=students)
+def dashboard():
+    leader_id = session["user_id"]
+    
+    with get_db() as conn:
+        leader_record = conn.execute(
+            "SELECT id, name, email, leader_code, club_name FROM users WHERE id=?",
+            (leader_id,)
+        ).fetchone()
 
-STATUS_ACTIONS={"approve":"active","activate":"active","reject":"rejected","suspend":"suspended"}
+        admins = conn.execute(
+            "SELECT id, name, email, status, created_at FROM users WHERE role='admin' AND leader_id=? ORDER BY CASE status WHEN 'pending' THEN 1 WHEN 'active' THEN 2 ELSE 3 END, name",
+            (leader_id,)
+        ).fetchall()
+
+        students = conn.execute(
+            "SELECT id, name, email, status, created_at FROM users WHERE role='student' AND leader_id=? ORDER BY status, name",
+            (leader_id,)
+        ).fetchall()
+
+        pending_admins_count = sum(1 for a in admins if a["status"] == "pending")
+        active_admins_count = sum(1 for a in admins if a["status"] == "active")
+        total_students_count = len(students)
+        
+        total_messages_count = conn.execute(
+            "SELECT COUNT(*) AS c FROM messages WHERE leader_id=?",
+            (leader_id,)
+        ).fetchone()["c"]
+
+    return render_template(
+        "pending.html",
+        leader_record=leader_record,
+        admins=admins,
+        students=students,
+        pending_admins_count=pending_admins_count,
+        active_admins_count=active_admins_count,
+        total_students_count=total_students_count,
+        total_messages_count=total_messages_count
+    )
+
+# Alias for backwards compatibility
+@leader.route("/leader/pending")
+@role_acquired("leader")
+def pending_admins():
+    return dashboard()
+
+STATUS_ACTIONS = {
+    "approve": "active",
+    "activate": "active",
+    "reject": "rejected",
+    "suspend": "suspended"
+}
 
 @leader.route("/leader/<int:user_id>/<action>", methods=["POST"])
 @role_acquired("leader")
-def decide(user_id,action):
+def decide(user_id, action):
+    leader_id = session["user_id"]
+    
     with get_db() as conn:
-        target=conn.execute("SELECT * FROM users WHERE id=? AND role!='leader'", (user_id,)).fetchone()
+        target = conn.execute(
+            "SELECT * FROM users WHERE id=? AND leader_id=? AND role!='leader'",
+            (user_id, leader_id)
+        ).fetchone()
+
         if not target:
             abort(404)
+
         if action in STATUS_ACTIONS:
-            conn.execute("UPDATE users SET status=? WHERE id=?", (STATUS_ACTIONS[action], user_id))
-        elif action=="reset":
-            temp=secrets.token_urlsafe(8)
-            conn.execute("UPDATE users SET password_hash=? WHERE id=?", (generate_password_hash(temp), user_id))
-            flash(f"Temporary password for {target['name']}: {temp} (share it privately, it won't be shown again)")
-        elif action=="remove":
+            new_status = STATUS_ACTIONS[action]
+            conn.execute("UPDATE users SET status=? WHERE id=?", (new_status, user_id))
+            action_names = {
+                "approve": "approved",
+                "activate": "activated",
+                "reject": "rejected",
+                "suspend": "suspended"
+            }
+            flash(f"User {target['name']} ({target['role']}) has been {action_names.get(action, new_status)}.")
+
+        elif action == "remove":
             conn.execute("DELETE FROM users WHERE id=?", (user_id,))
             conn.execute("DELETE FROM send_limits WHERE user_id=?", (user_id,))
+            flash(f"User {target['name']} has been removed from the club.")
+
         else:
-            abort(404)
-    return redirect(url_for("leader.pending_admins"))
+            abort(400)
+
+    return redirect(url_for("leader.dashboard"))

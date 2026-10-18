@@ -3,25 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}cyber talent SMA{% endblock %}</title>
+    <title>{% block title %}Cyber Talent SMA - Send Messages Anonymously{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <strong>Cyber Talent SMA</strong>
-        <nav>
-         {% if role=='leader' %}<a href="{{ url_for('leader.pending_admins') }}">admins</a>{% endif %}
-         {% if role in ('admin', 'leader') %}<a href="{{ url_for('admin.inbox') }}">inbox</a>{% endif %}
-         {% if role %}
-         <form method="POST" action="{{ url_for('auth.logout') }}">
-            <input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">logout</button>
-         </form>
-         {% endif %}
-         </nav>
+    <header class="site-header">
+        <div class="header-inner">
+            <a href="{{ url_for('auth.landing') }}" class="brand">
+                <span class="brand-badge">SMA</span>
+                <span class="brand-text">Cyber Talent <strong>Club</strong></span>
+            </a>
+
+            <nav class="nav-links">
+                {% if role == 'student' %}
+                    <a href="{{ url_for('student.send_page') }}" class="nav-link">Send Message</a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link">My Club</a>
+                    <a href="{{ url_for('student.create_club') }}" class="btn btn-xs btn-outline" style="border-color: var(--accent); color: var(--accent); font-weight: 700;">
+                        👑 Start a Club
+                    </a>
+                {% elif role == 'admin' %}
+                    <a href="{{ url_for('admin.inbox') }}" class="nav-link">
+                        Inbox
+                        {% if unread_count and unread_count > 0 %}
+                            <span class="badge badge-unread">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
+                {% elif role == 'leader' %}
+                    <a href="{{ url_for('leader.dashboard') }}" class="nav-link">Club Hub</a>
+                    <a href="{{ url_for('admin.inbox') }}" class="nav-link">
+                        Inbox
+                        {% if unread_count and unread_count > 0 %}
+                            <span class="badge badge-unread">{{ unread_count }}</span>
+                        {% endif %}
+                    </a>
+                    <a href="{{ url_for('auth.profile') }}" class="nav-link">Profile</a>
+                {% else %}
+                    <a href="{{ url_for('auth.landing') }}" class="nav-link">Home</a>
+                    <a href="{{ url_for('auth.landing') }}#how-it-works" class="nav-link">How It Works</a>
+                    <a href="{{ url_for('auth.login') }}" class="nav-link">Sign In</a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-primary">Join Club</a>
+                {% endif %}
+
+                {% if role %}
+                    <div class="user-menu">
+                        <span class="user-pill">
+                            <span class="status-dot"></span>
+                            {{ user_name or 'Member' }} ({{ role|capitalize }})
+                        </span>
+                        <a href="{{ url_for('auth.change_password') }}" class="nav-link nav-icon" title="Change Password">
+                            Security
+                        </a>
+                        <form method="POST" action="{{ url_for('auth.logout') }}" class="logout-form">
+                            <input type="hidden" name="csrf" value="{{ csrf }}">
+                            <button type="submit" class="btn btn-sm btn-outline">Log Out</button>
+                        </form>
+                    </div>
+                {% endif %}
+            </nav>
+        </div>
     </header>
-    <main>
-        {% for m in get_flashed_messages() %}<p class="flash">{{ m }}</p>{% endfor %}
+
+    <main class="main-container">
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <div class="flash-stack">
+                    {% for m in messages %}
+                        <div class="flash-message">
+                            <span class="flash-icon">ℹ️</span>
+                            <span class="flash-text">{{ m }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
         {% block content %}{% endblock %}
-        </main>
+    </main>
+
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p><strong>Cyber Talent Club SMA</strong> &bull; Anonymous Feedback & Ideas System</p>
+            <p class="footer-meta">Zero user identification stored on messages. Your voice matters.</p>
+        </div>
+    </footer>
 </body>
 </html>

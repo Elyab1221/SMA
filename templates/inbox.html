@@ -1,25 +1,86 @@
 {% extends "base.html" %}
-{% block title %} Inbox {% endblock %}
+
+{% block title %}Club Inbox - Cyber Talent SMA{% endblock %}
+
 {% block content %}
-    <h1>Inbox</h1>
-    {% for m in msgs %}
-    <article class="msg {{ '' if m.is_read else 'unread' }}">
-        <p>{{ m.text }}</p>
-        <small>{{ m.created_at }}</small>
-        <div class="actions">
-            {% if not m.is_read %}
-            <form method="POST" action="{{ url_for('admin.mark_read', msg_id=m.id) }}">
-                <input type="hidden" name="csrf" value="{{ csrf }}">
-                <button type="submit">Mark as Read</button>
-            </form>
-            {% endif %}
-            <form method="POST" action="{{ url_for('admin.delete', msg_id=m.id) }}">
-                <input type="hidden" name="csrf" value="{{ csrf }}">
-                <button type="submit" class="danger">Delete</button>
-            </form>
+<div class="inbox-container">
+    <div class="inbox-header">
+        <div>
+            <h1>Club Feedback Inbox</h1>
+            <p class="text-muted">Review anonymous suggestions and inquiries submitted by club members.</p>
         </div>
-    </article>
-    {% else %}
-        <p>No messages found.</p>
-    {% endfor %}
+        
+        <div class="inbox-stats">
+            <div class="stat-mini">
+                <span class="stat-num">{{ unread_count }}</span>
+                <span class="stat-desc">Unread</span>
+            </div>
+            <div class="stat-mini">
+                <span class="stat-num">{{ total_count }}</span>
+                <span class="stat-desc">Total</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="filter-bar">
+        <a href="{{ url_for('admin.inbox', filter='all') }}" class="filter-tab {% if filter_type != 'unread' %}active{% endif %}">
+            All Messages ({{ total_count }})
+        </a>
+        <a href="{{ url_for('admin.inbox', filter='unread') }}" class="filter-tab {% if filter_type == 'unread' %}active{% endif %}">
+            Unread Only ({{ unread_count }})
+        </a>
+    </div>
+
+    <div class="messages-list">
+        {% for m in msgs %}
+            <article class="msg-card {% if not m.is_read %}msg-unread{% endif %}">
+                <div class="msg-meta">
+                    <div class="msg-tag">
+                        {% if not m.is_read %}
+                            <span class="badge badge-new">NEW</span>
+                        {% else %}
+                            <span class="badge badge-read">READ</span>
+                        {% endif %}
+                        <span class="msg-author">Anonymous Member</span>
+                    </div>
+                    <time class="msg-time">{{ m.created_at }}</time>
+                </div>
+
+                <div class="msg-content">
+                    <p>{{ m.text }}</p>
+                </div>
+
+                <div class="msg-actions">
+                    {% if not m.is_read %}
+                        <form method="POST" action="{{ url_for('admin.mark_read', msg_id=m.id) }}" class="inline-form">
+                            <input type="hidden" name="csrf" value="{{ csrf }}">
+                            <button type="submit" class="btn btn-sm btn-outline">
+                                ✓ Mark as Read
+                            </button>
+                        </form>
+                    {% endif %}
+                    
+                    <form method="POST" action="{{ url_for('admin.delete', msg_id=m.id) }}" class="inline-form" onsubmit="return confirm('Are you sure you want to delete this message?');">
+                        <input type="hidden" name="csrf" value="{{ csrf }}">
+                        <button type="submit" class="btn btn-sm btn-danger">
+                            🗑 Delete
+                        </button>
+                    </form>
+                </div>
+            </article>
+        {% else %}
+            <div class="empty-state">
+                <span class="empty-icon">📭</span>
+                <h3>No messages found</h3>
+                <p>
+                    {% if filter_type == 'unread' %}
+                        You're all caught up! There are no unread messages.
+                    {% else %}
+                        No member has submitted an anonymous message yet.
+                    {% endif %}
+                </p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
 {% endblock %}

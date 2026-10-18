@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block title %}Account Profile - Cyber Talent SMA{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card profile-card">
+        <div class="auth-header">
+            <span class="auth-icon">👤</span>
+            <h2>My Account Profile</h2>
+            <p>Your Cyber Talent SMA membership details</p>
+        </div>
+
+        <div class="profile-details">
+            <div class="profile-row">
+                <span class="profile-label">Full Name</span>
+                <span class="profile-val"><strong>{{ user.name }}</strong></span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Email Address</span>
+                <span class="profile-val">{{ user.email }}</span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Account Role</span>
+                <span class="profile-val">
+                    <span class="badge badge-info">{{ user.role|capitalize }}</span>
+                </span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Account Status</span>
+                <span class="profile-val">
+                    <span class="status-pill status-{{ user.status }}">{{ user.status|capitalize }}</span>
+                </span>
+            </div>
+
+            {% if user.role == 'leader' %}
+                <div class="profile-row highlight-row">
+                    <span class="profile-label">Your Club Name</span>
+                    <span class="profile-val"><strong>{{ user.club_name or 'My Club' }}</strong></span>
+                </div>
+                <div class="profile-row highlight-row">
+                    <span class="profile-label">Your Club Code</span>
+                    <span class="profile-val code-string">{{ user.leader_code }}</span>
+                </div>
+            {% elif user.leader_name %}
+                <div class="profile-row highlight-row">
+                    <span class="profile-label">Club Affiliation</span>
+                    <span class="profile-val">{{ user.leader_club_name or 'Club' }} (Leader: {{ user.leader_name }})</span>
+                </div>
+            {% endif %}
+
+            <div class="profile-row">
+                <span class="profile-label">Member Since</span>
+                <span class="profile-val text-muted">{{ user.created_at or 'N/A' }}</span>
+            </div>
+        </div>
+
+        <div class="profile-actions" style="display: flex; flex-direction: column; gap: 0.75rem;">
+            {% if user.role == 'student' %}
+                <a href="{{ url_for('student.create_club') }}" class="btn btn-secondary btn-block" style="border-color: var(--accent); color: var(--accent); font-weight: 700;">
+                    👑 Start Your Own Club as Leader
+                </a>
+            {% endif %}
+            <a href="{{ url_for('auth.change_password') }}" class="btn btn-primary btn-block">
+                🔑 Change Password
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

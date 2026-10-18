@@ -1,31 +1,192 @@
 {% extends "base.html" %}
-{% block title %} Admins {% endblock %}
-{% macro person(u) %}
-    <article class="msg">
-    <p><strong>{{ u.name }}</strong> ({{ u.email }}) is {{ u.status }}</p>
-    <div class="actions">
-        {% set acts = {'pending': [('approve','Approve'),('reject','Reject')],
-                       'active': [('suspend','Suspend')],
-                       'rejected': [('activate','Approve')],
-                       'suspended': [('activate','Reactivate')]}[u.status] %}
-        {% for act, label in acts + [('reset','Reset password'),('remove','Remove')] %}
-        <form method="POST" action="{{ url_for('leader.decide', user_id=u.id, action=act) }}">
-            <input type="hidden" name="csrf" value="{{ csrf }}">
-            <button class="{{ 'danger' if act in ('reject','suspend','remove') else '' }}">{{ label }}</button>
-        </form>
-        {% endfor %}
-    </div>
-    </article>
-{% endmacro %}
+
+{% block title %}Club Hub - Cyber Talent SMA{% endblock %}
+
 {% block content %}
-    <h1>admin requests</h1>
-    {% for a in admins %}{{ person(a) }}
-    {% else %}
-    <p>No admin has registered yet.</p>
-    {% endfor %}
-    <h2>members</h2>
-    {% for s in students %}{{ person(s) }}
-    {% else %}
-    <p>No members yet.</p>
-    {% endfor %}
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <div>
+            <h1>{{ leader_record.club_name or 'Club Administration Hub' }}</h1>
+            <p class="text-muted">Leader Hub &bull; Manage your club staff, review admin applications, and view members.</p>
+        </div>
+    </div>
+
+    <!-- Club Code Highlight Card -->
+    <div class="club-code-card">
+        <div class="code-details">
+            <span class="code-label">YOUR CLUB INVITATION CODE</span>
+            <div class="code-display">
+                <span class="code-string" id="clubCodeText">{{ leader_record.leader_code }}</span>
+                <button type="button" class="btn btn-sm btn-secondary" onclick="copyClubCode()">
+                    📋 Copy Code
+                </button>
+            </div>
+            <p class="code-note">Give this code to your admins and students so they can register under your club.</p>
+        </div>
+    </div>
+
+    <!-- Overview Stats Grid -->
+    <div class="stats-grid">
+        <div class="stat-card {% if pending_admins_count > 0 %}stat-alert{% endif %}">
+            <div class="stat-value">{{ pending_admins_count }}</div>
+            <div class="stat-title">Pending Admin Requests</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ active_admins_count }}</div>
+            <div class="stat-title">Active Admins</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_students_count }}</div>
+            <div class="stat-title">Registered Members</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-value">{{ total_messages_count }}</div>
+            <div class="stat-title">Anonymous Messages</div>
+        </div>
+    </div>
+
+    <!-- Admin Management Section -->
+    <section class="admin-section">
+        <div class="section-title-bar">
+            <h2>Club Administrators & Requests</h2>
+            <span class="badge badge-info">{{ admins|length }} Total</span>
+        </div>
+
+        {% if admins %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Applied / Joined</th>
+                            <th style="text-align: right;">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for a in admins %}
+                            <tr>
+                                <td><strong>{{ a.name }}</strong></td>
+                                <td>{{ a.email }}</td>
+                                <td>
+                                    <span class="status-pill status-{{ a.status }}">
+                                        {{ a.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td><small class="text-muted">{{ a.created_at or 'N/A' }}</small></td>
+                                <td style="text-align: right;">
+                                    <div class="action-buttons">
+                                        {% if a.status == 'pending' %}
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=a.id, action='approve') }}" class="inline-form">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-success">✓ Approve</button>
+                                            </form>
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=a.id, action='reject') }}" class="inline-form" onsubmit="return confirm('Reject this admin application?');">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-danger">✕ Reject</button>
+                                            </form>
+                                        {% elif a.status == 'active' %}
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=a.id, action='suspend') }}" class="inline-form" onsubmit="return confirm('Suspend this admin?');">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-warning">⏸ Suspend</button>
+                                            </form>
+                                        {% elif a.status in ('suspended', 'rejected') %}
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=a.id, action='activate') }}" class="inline-form">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-success">↻ Reactivate</button>
+                                            </form>
+                                        {% endif %}
+
+                                        <form method="POST" action="{{ url_for('leader.decide', user_id=a.id, action='remove') }}" class="inline-form" onsubmit="return confirm('Permanently remove {{ a.name }} from the club?');">
+                                            <input type="hidden" name="csrf" value="{{ csrf }}">
+                                            <button type="submit" class="btn btn-xs btn-danger-outline">Remove</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state-mini">
+                <p>No admins have registered with your Club Code yet.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <!-- Student Members Section -->
+    <section class="admin-section">
+        <div class="section-title-bar">
+            <h2>Enrolled Club Members (Students)</h2>
+            <span class="badge badge-info">{{ students|length }} Total</span>
+        </div>
+
+        {% if students %}
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th style="text-align: right;">Membership Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in students %}
+                            <tr>
+                                <td><strong>{{ s.name }}</strong></td>
+                                <td>{{ s.email }}</td>
+                                <td>
+                                    <span class="status-pill status-{{ s.status }}">
+                                        {{ s.status|capitalize }}
+                                    </span>
+                                </td>
+                                <td><small class="text-muted">{{ s.created_at or 'N/A' }}</small></td>
+                                <td style="text-align: right;">
+                                    <div class="action-buttons">
+                                        {% if s.status == 'active' %}
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=s.id, action='suspend') }}" class="inline-form" onsubmit="return confirm('Suspend this student member?');">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-warning">Suspend</button>
+                                            </form>
+                                        {% elif s.status in ('suspended', 'rejected') %}
+                                            <form method="POST" action="{{ url_for('leader.decide', user_id=s.id, action='activate') }}" class="inline-form">
+                                                <input type="hidden" name="csrf" value="{{ csrf }}">
+                                                <button type="submit" class="btn btn-xs btn-success">Reactivate</button>
+                                            </form>
+                                        {% endif %}
+
+                                        <form method="POST" action="{{ url_for('leader.decide', user_id=s.id, action='remove') }}" class="inline-form" onsubmit="return confirm('Permanently remove {{ s.name }}?');">
+                                            <input type="hidden" name="csrf" value="{{ csrf }}">
+                                            <button type="submit" class="btn btn-xs btn-danger-outline">Remove</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="empty-state-mini">
+                <p>No students have joined your club yet. Give them your Club Code ({{ leader_record.leader_code }}) to register!</p>
+            </div>
+        {% endif %}
+    </section>
+</div>
+
+<script>
+    function copyClubCode() {
+        const code = document.getElementById("clubCodeText").innerText;
+        navigator.clipboard.writeText(code).then(() => {
+            alert("Club Code copied to clipboard: " + code);
+        }).catch(err => {
+            prompt("Copy your Club Code:", code);
+        });
+    }
+</script>
 {% endblock %}
