@@ -3,20 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SMA</title>
-    <link rel="stylesheet" href="{{url_for('static',filename='style.css')}}">
+    <title>{% block title %}cyber talent SMA{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <header>
-        <strong>SMA</strong>
+        <strong>Cyber Talent SMA</strong>
         <nav>
-         {% if role=='leader' %}<a href="{{url_for('leader.pending_admins')}}">admins</a>{%endif%}
-         {% if role in('admin', 'leader') %}<a href="{{url_for('admin.inbox')}}">inbox</a>{%endif%}
-         {%if role %}
-         <form method="POST" action="{{url_for('auth.logout')}}">
-            <input type="hidden" name="csrf" value="{{csrf}}"><button class="link">logout</button>
+         {% if role=='leader' %}<a href="{{ url_for('leader.pending_admins') }}">admins</a>{% endif %}
+         {% if role in ('admin', 'leader') %}<a href="{{ url_for('admin.inbox') }}">inbox</a>{% endif %}
+         {% if role %}
+         <form method="POST" action="{{ url_for('auth.logout') }}">
+            <input type="hidden" name="csrf" value="{{ csrf }}"><button class="link">logout</button>
          </form>
-         {%endif%}
+         {% endif %}
          </nav>
     </header>
     <main>

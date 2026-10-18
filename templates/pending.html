@@ -1,35 +1,31 @@
-{%e extends "base.html" %}
-{%b block title %} Admins{% endblock %}
- {% macro person(u) %}
-    <!-- <h1>admin requests</h1>
-    {% for a in admins %} -->
+{% extends "base.html" %}
+{% block title %} Admins {% endblock %}
+{% macro person(u) %}
     <article class="msg">
-    <p><strong>{{ u.name }}</strong>({{ u.email }}) is {{u.status}}</p>
+    <p><strong>{{ u.name }}</strong> ({{ u.email }}) is {{ u.status }}</p>
     <div class="actions">
-        {%set acts={'pending':[('approve','Approve'),('reject','Reject')],
-        'active':[('suspend','Suspend')],
-        'rejected':[('activate','approve')],
-        'suspended':[('activate','reactivate')]}[u.status]%}
-        {%for act, label in acts + [('reset','Reset password'),('remove','Remove')]%}
-        <!-- {% for act, label in('approve', 'Approve'), ('reject', 'Reject') %} -->
-        <form method="POST" action="{{ url_for('leader.decide', user_id=u.id, action=act)}}">
+        {% set acts = {'pending': [('approve','Approve'),('reject','Reject')],
+                       'active': [('suspend','Suspend')],
+                       'rejected': [('activate','Approve')],
+                       'suspended': [('activate','Reactivate')]}[u.status] %}
+        {% for act, label in acts + [('reset','Reset password'),('remove','Remove')] %}
+        <form method="POST" action="{{ url_for('leader.decide', user_id=u.id, action=act) }}">
             <input type="hidden" name="csrf" value="{{ csrf }}">
-            <!-- <button class="{{'danger' if act=='reject' else''}}">{{ label }}</button> -->
-             <button class="{{ 'danger' if act in ('reject','suspend','remove') else '' }}">{{label}}</button>
+            <button class="{{ 'danger' if act in ('reject','suspend','remove') else '' }}">{{ label }}</button>
         </form>
         {% endfor %}
     </div>
     </article>
 {% endmacro %}
 {% block content %}
-<h1>admin request</h1>
-{% for a in admins %} {{ person(a) }}
+    <h1>admin requests</h1>
+    {% for a in admins %}{{ person(a) }}
     {% else %}
     <p>No admin has registered yet.</p>
     {% endfor %}
-<h2>members</h2>
-{% for s in students%}{{person(s) }}
-{% else %}
-<p>no members yet.</p>
-{% endfor %}
+    <h2>members</h2>
+    {% for s in students %}{{ person(s) }}
+    {% else %}
+    <p>No members yet.</p>
+    {% endfor %}
 {% endblock %}

@@ -4,14 +4,14 @@
    <h1>create an account</h1>
     <form method="POST">
         <input type="hidden" name="csrf" value="{{csrf}}">
-        <label>name<input name="name" type="text" required></label>
-        <label>email<input name="email" type="email" required></label>
-        <label>password<input type="password" id="password" name="password" required>
+        <label>name<input class="req" name="name" type="text" required></label>
+        <label>email<input class="req" name="email" type="email" required></label>
+        <label>password<input class="req" type="password" id="password" name="password" required>
         </label>
-        <label> club code: <input name="code" type="text" autocomplete="off" required></label>
+        <label class="req"> club code: <input name="code" type="text" autocomplete="off" required></label>
         <!-- <label>confirm password<input type="password" id="confirm_password" name="confirm_password" required>
         </label> -->
-        <label> I am
+        <label class="req"> I am
         <select name="role" required>
             <option value="student">club member</option>
             <option value="admin">admin(needs leader approval)</option>

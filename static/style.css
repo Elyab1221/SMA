@@ -150,7 +150,8 @@ button.danger:hover{
 main>form>button{
     justify-self:start;}
 
-.req{margin-bottom: 30px ;}
+.req{margin-bottom: 20px ;}
+
 #form textarea{
     min-height: 13rem;
     padding: 6rem 1rem 1rem;
