@@ -1,9 +1,9 @@
 const form=document.getElementById("form");
-const stauts=document.getElementById("status");
+const status=document.getElementById("status");
 
 form.addEventListener("submit",async(e)=>{
     e.preventDefault();
-    const res=await fetch("api/messages",{
+    const res=await fetch("/api/messages",{
         method: "POST",
         headers: {"Content-Type": "application/json", "X-CSRF": form.dataset.csrf},
         body: JSON.stringify({text: form.text.value}),

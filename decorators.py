@@ -9,7 +9,7 @@ def role_acquired(*roles):
             if "user_id" not in session:
                 return redirect(url_for("auth.login"))
             #checking the DB for sespenede user and typ shi liek taht 
-            u=get_db().execute("SELECT role,stauts FROM users where ID=?",(session["user_id"],)).fetchone()
+            u=get_db().execute("SELECT role,status FROM users where ID=?",(session["user_id"],)).fetchone()
             if not u or u["status"]!="active":
                 session.clear()
                 flash("your session ended.please log in again.")

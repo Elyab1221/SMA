@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS users(
     email TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK (role IN('student','admin','leader')),
-    status TEXT NOT NULL CHECK (status IN ('acitve','pending','rejected','suspended'))
+    status TEXT NOT NULL CHECK (status IN ('active','pending','rejected','suspended'))
 );
 --No user id on purpose to make it anonymous
 --cretaed at is a date only(notime) so timing cant identify anyone.

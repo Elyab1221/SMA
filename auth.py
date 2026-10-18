@@ -8,7 +8,7 @@ from werkzeug.security import check_password_hash, generate_password_hash,check_
 from db import get_db
 
 auth=Blueprint("auth", __name__)
-EMAIL_RE= re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]=$")
+EMAIL_RE= re.compile(r"[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 def home_for(role):
     return url_for("student.send_page") if role=="student" else url_for("admin.inbox") if role=="admin" else url_for("leader.pending_admins")
@@ -22,7 +22,7 @@ def index():
 @auth.route("/register",methods=["GET","POST"])
 
 def register():
-    if request.mehod=="POST":
+    if request.method=="POST":
         name=request.form.get("name","").strip()
         email=request.form.get("email","").strip().lower()
         password=request.form.get("password","")
@@ -35,7 +35,7 @@ def register():
         elif not name or len(name)>60 or not EMAIL_RE.match(email) or not 8<=len(password)<=128:
             flash("enter your name , a valid email and a passwrd with 8-128 characters")
         else:
-            status="active" if role=="student" else "peending"
+            status="active" if role=="student" else "pending"
             try:
                 with get_db() as conn:
                     conn.execute("INSER INTO users(name,email,password_hash,role,status) VALUES(?,?,?,?,?)",
