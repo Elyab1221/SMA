@@ -1,14 +1,14 @@
 import secrets
+import os
+import sys
 from flask import Flask, session, request, abort, render_template, redirect, url_for
+from werkzeug.middleware.proxy_fix import ProxyFix
 import config
 import db
 from auth import auth
 from student import student
 from admin import admin
 from leader import leader
-
-import os
-import sys
 
 # Support PyInstaller frozen bundles
 if getattr(sys, "frozen", False):
@@ -20,6 +20,10 @@ if getattr(sys, "frozen", False):
     )
 else:
     app = Flask(__name__)
+
+# Configure ProxyFix for reverse proxies (Render, Heroku, Nginx)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_prefix=1)
+
 app.config.update(
     SECRET_KEY=config.SECRET_KEY,
     SESSION_COOKIE_HTTPONLY=True,
@@ -32,14 +36,19 @@ app.config.update(
 for bp in (auth, student, admin, leader):
     app.register_blueprint(bp)
 
+@app.teardown_appcontext
+def shutdown_db_session(exception=None):
+    db.close_db(exception)
+
 @app.before_request
 def csrf_check():
     if "csrf" not in session:
         session["csrf"] = secrets.token_hex(16)
         
-    if request.method == "POST":
+    if request.method in ("POST", "PUT", "PATCH", "DELETE"):
         sent = request.form.get("csrf") or request.headers.get("X-CSRF")
-        if not sent or sent != session.get("csrf"):
+        session_csrf = session.get("csrf", "")
+        if not sent or not session_csrf or not secrets.compare_digest(str(sent), str(session_csrf)):
             abort(400, description="Invalid or missing CSRF token. Please refresh the page and try again.")
 
 @app.after_request
@@ -49,7 +58,7 @@ def security_headers(resp):
         "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
         "font-src 'self' https://fonts.gstatic.com; "
         "img-src 'self' data:; "
-        "script-src 'self';"
+        "script-src 'self' 'unsafe-inline';"
     )
     resp.headers["X-Content-Type-Options"] = "nosniff"
     resp.headers["X-Frame-Options"] = "DENY"
@@ -106,8 +115,6 @@ def server_error(e):
     return render_template("error.html", code=500, message="An internal server error occurred. Please try again later."), 500
 
 if __name__ == "__main__":
-    import os
-    import sys
     if hasattr(sys.stdout, "reconfigure"):
         try:
             sys.stdout.reconfigure(encoding="utf-8")
@@ -116,7 +123,7 @@ if __name__ == "__main__":
             pass
 
     db.init_db()
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", config.PORT))
     print("\n" + "=" * 60)
     print("  [OK] Cyber Talent Club SMA - Server is ACTIVE!")
     print(f"  --> Open in browser: http://127.0.0.1:{port}")

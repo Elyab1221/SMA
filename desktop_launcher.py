@@ -14,10 +14,11 @@ else:
 
 import app
 import db
+import config
 
 def open_browser():
     time.sleep(1.2)
-    webbrowser.open("http://127.0.0.1:5000")
+    webbrowser.open(f"http://127.0.0.1:{config.PORT}")
 
 def main():
     if sys.platform == "win32":
@@ -32,7 +33,7 @@ def main():
     print("[*] Initializing database...")
     db.init_db()
     
-    print("[*] Starting web server on http://127.0.0.1:5000")
+    print(f"[*] Starting web server on http://127.0.0.1:{config.PORT}")
     print("[*] Opening your web browser automatically...")
     threading.Thread(target=open_browser, daemon=True).start()
     
@@ -40,7 +41,7 @@ def main():
     print("[*] Press Ctrl+C in this window to stop.")
     print("=" * 60)
     
-    app.app.run(host="127.0.0.1", port=5000, debug=False)
+    app.app.run(host="127.0.0.1", port=config.PORT, debug=False)
 
 if __name__ == "__main__":
     main()

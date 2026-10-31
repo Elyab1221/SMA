@@ -11,6 +11,7 @@ from decorators import login_required
 
 auth = Blueprint("auth", __name__)
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+_DUMMY_HASH = generate_password_hash("constant_time_pad_value_123456789")
 
 def generate_leader_code():
     chars = string.ascii_uppercase + string.digits
@@ -131,7 +132,10 @@ def login():
                 return render_template("login.html")
 
             user = conn.execute("SELECT * FROM users WHERE email=?", (email,)).fetchone()
-            if not user or not check_password_hash(user["password_hash"], password):
+            # Constant-time comparison to prevent user enumeration
+            valid_pwd = check_password_hash(user["password_hash"], password) if user else check_password_hash(_DUMMY_HASH, password)
+
+            if not user or not valid_pwd:
                 fails = (att["fails"] if att else 0) + 1
                 lock = (now + config.LOCK_SECONDS) if fails >= config.MAX_FAILS else 0
                 conn.execute(

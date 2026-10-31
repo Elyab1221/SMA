@@ -8,7 +8,7 @@ echo ==========================================================
 echo.
 
 :: Automatically open browser after 2 seconds in the background
-start "" cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:5000"
+start "" cmd /c "timeout /t 2 /nobreak >nul & start http://127.0.0.1:5050"
 
 :: Start the Flask app
 python app.py
