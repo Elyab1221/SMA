@@ -33,8 +33,7 @@ I built this project for the Cyber Talent Club at my school, but any student clu
 ---
 
 ## Why I Made It
-
-In a club, members often have great ideas or real concerns, but stay quiet because they are afraid of being judged, feeling awkward, or worrying about what leadership might think. Simply telling people to "just speak up" does not work for everyone.
+i got the idea when i was wondering what to build for terra hackclub and realized it is better if i build this because i can do 2 things at the same time. the idea minly come from the thought that. In a club, members often have great ideas or real concerns, but stay quiet because they are afraid of being judged, feeling awkward, or worrying about what leadership might think. Simply telling people to "just speak up" does not work for everyone.
 
 I wanted a simple, safe way for members to say what they truly think without fear, while still protecting the club from spam and abuse. That's why:
 - Messages are **strictly anonymous** (no student identity is linked to the message).
